@@ -96,13 +96,20 @@ if uploaded_file is not None:
 
     st.subheader(f"Временной ряд температур для {selected_city} с аномалиями")
     fig_time_series = go.Figure()
-    fig_time_series.add_trace(go.Scatter(x=analyzed_city_data['timestamp'], y=analyzed_city['temperature'],
-                                         mode='lines', name='Температура'))
-    fig_time_series.add_trace(go.Scatter(x=analyzed_city_data['timestamp'], y=analyzed_city['temp_rolling_mean'],
+
+    fig_time_series.add_trace(go.Scatter(x=analyzed_city_data['timestamp'], y=analyzed_city_data['temperature'],
+                                         mode='lines', name='Температура', line=dict(width=1, color='lightblue')))
+
+    fig_time_series.add_trace(go.Scatter(x=analyzed_city_data['timestamp'], y=analyzed_city_data['temp_rolling_mean'],
                                          mode='lines', name='Скользящее среднее (30 дней)', line=dict(color='orange')))
+
     anomalies = analyzed_city_data[analyzed_city_data['anomaly']]
-    fig_time_series.add_trace(go.Scatter(x=anomalies['timestamp'], y=anomalies['temperature'],
-                                         mode='markers', name='Аномалия', marker=dict(color='red', size=8)))
+
+    if not anomalies.empty:
+        fig_time_series.add_trace(go.Scatter(x=anomalies['timestamp'], y=anomalies['temperature'],
+                                             mode='markers', name='Аномалия', marker=dict(color='red', size=8)))
+    else:
+        st.caption("Аномалий не обнаружено для выбранного города в рамках заданного порога.")
     fig_time_series.update_layout(xaxis_title='Дата', yaxis_title='Температура (°C)')
     st.plotly_chart(fig_time_series)
 
